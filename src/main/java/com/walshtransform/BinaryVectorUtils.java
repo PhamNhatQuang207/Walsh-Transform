@@ -56,4 +56,20 @@ final class BinaryVectorUtils {
         }
         return vector;
     }
-}
+
+    /**
+     * Converts a binary vector back to its integer representation.
+     *
+     * @param vector binary vector
+     * @return integer value
+     */
+    static int binaryVectorToInt(int[] vector) {
+        int value = 0;
+        for (int i = 0; i < vector.length; i++) {
+            if (vector[i] == 1) {
+                value |= (1 << i);
+            }
+        }
+        return value;
+    }
+    }

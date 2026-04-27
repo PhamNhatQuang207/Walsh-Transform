@@ -72,6 +72,26 @@ public class Main {
         System.out.println("Time for Matrix Method: " + (endMatrix - startMatrix) + " ms");
         System.out.println("Time for Summation Method:    " + (endSum - startSum) + " ms");
 
+        // 6. Demonstrate reconstruction using WalshPolynomial
+        System.out.println("\n--- Reconstruction verification using WalshPolynomial ---");
+        System.out.printf("%-15s | %-15s | %-15s | %-10s\n", "Input (x)", "Original f(x)", "Reconstructed", "Status");
+        System.out.println("----------------------------------------------------------------------------");
+
+        boolean reconstructionSuccess = true;
+        for (int i = 0; i < displayLimit; i++) {
+            int[] binaryInput = BinaryVectorUtils.intToBinaryVector(i, n);
+            double original = f.evaluate(binaryInput);
+            double reconstructed = WalshPolynomial.evaluate(weightsMatrix, binaryInput);
+
+            boolean match = Math.abs(original - reconstructed) < 1e-10;
+            if (!match) reconstructionSuccess = false;
+
+            System.out.printf("%-15s | %-15.4f | %-15.4f | %-10s\n", 
+                              Arrays.toString(binaryInput), original, reconstructed, match ? "MATCH" : "FAIL");
+        }
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.println("RECONSTRUCTION RESULT: " + (reconstructionSuccess ? "SUCCESS" : "FAILURE"));
+
         scanner.close();
-    }
-}
+        }
+        }
