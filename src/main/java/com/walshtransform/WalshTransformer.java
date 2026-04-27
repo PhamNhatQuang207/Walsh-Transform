@@ -33,7 +33,7 @@ public class WalshTransformer {
             throw new IllegalArgumentException("dimension n is too large to build a 2^n vector size as int");
         }
 
-        int size = powerOfTwo(n);
+        int size = 1 << n; // 2^n
         double[] fVec = new double[size];
 
         for (int i = 0; i < size; i++) {
@@ -72,17 +72,4 @@ public class WalshTransformer {
         return vector;
     }
 
-    /**
-     * Computes {@code 2^n} using integer multiplication only.
-     *
-     * @param n non-negative exponent
-     * @return {@code 2^n}
-     */
-    private static int powerOfTwo(int n) {
-        int result = 1;
-        for (int i = 0; i < n; i++) {
-            result *= 2;
-        }
-        return result;
-    }
 }
