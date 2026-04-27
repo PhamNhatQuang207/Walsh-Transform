@@ -1,19 +1,25 @@
-# Stage Java Library
+# Walsh Transform Java Library
 
-Java library project built with Maven and Java 17.
+Java library project built with Maven and Java 17 for calculating Walsh transforms.
 
 ## Features
 
-- `HadamardMatrix`: generates Sylvester-type Hadamard matrices of order `2^n`
-- `BlackBoxFunction`: abstract base class for black-box function evaluation over integer vectors
-- JUnit 5 tests for matrix generation properties and black-box base behavior
+- **HadamardMatrix**: generates Sylvester-type Hadamard matrices of order `2^n`.
+- **WalshTransformer**: computes Walsh coefficients using the Hadamard matrix method.
+- **WalshTransformerDirect**: computes Walsh coefficients using the direct summation method.
+- **BlackBoxFunction**: abstract base class and random implementation for black-box function evaluation over integer vectors.
+- **Main**: Interactive CLI application to test and compare both Walsh transform methods.
+- JUnit 5 tests to verify the correctness of the matrix generation and transformations.
 
 ## Project Structure
 
-- `src/main/java/com/example/HadamardMatrix.java`
-- `src/main/java/com/example/BlackBoxFunction.java`
-- `src/test/java/com/example/HadamardMatrixTest.java`
-- `src/test/java/com/example/BlackBoxFunctionTest.java`
+- `src/main/java/com/walshtransform/HadamardMatrix.java`
+- `src/main/java/com/walshtransform/BlackBoxFunction.java`
+- `src/main/java/com/walshtransform/RandomBlackBox.java`
+- `src/main/java/com/walshtransform/WalshTransformer.java`
+- `src/main/java/com/walshtransform/WalshTransformerDirect.java`
+- `src/main/java/com/walshtransform/BinaryVectorUtils.java`
+- `src/main/java/com/walshtransform/Main.java`
 
 ## Requirements
 
@@ -22,21 +28,27 @@ Java library project built with Maven and Java 17.
 
 ## Build and Test
 
+To compile the project and run the test suite:
+
 ```bash
-mvn -B clean test
-mvn -B package
+mvn clean test
 ```
 
-## Usage Example
+To package the project into a JAR file:
 
-```java
-int[][] h = HadamardMatrix.generate(2);
-// h =
-// [ 1,  1,  1,  1]
-// [ 1, -1,  1, -1]
-// [ 1,  1, -1, -1]
-// [ 1, -1, -1,  1]
+```bash
+mvn package
 ```
+
+## Running the Application
+
+You can easily run the interactive CLI application to compare the performance and outputs of both Walsh transform methods using the following Maven command:
+
+```bash
+mvn exec:java
+```
+
+When you run this command, it will prompt you for the input dimension `n` and a maximum value `Q` for the random black-box function.
 
 ## Notes
 
