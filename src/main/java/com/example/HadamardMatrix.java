@@ -32,6 +32,20 @@ public class HadamardMatrix {
         return h;
     }
 
+    /**
+     * Recursively fills a submatrix using the Sylvester Hadamard construction.
+     *
+     * <p>For depth {@code n}, this method writes a {@code 2^n x 2^n} block whose top-left
+     * corner is {@code (r, c)}. The block is split into four quadrants:
+     * top-left, top-right, and bottom-left keep the same sign {@code val}, while bottom-right
+     * uses {@code -val}.</p>
+     *
+     * @param mat target matrix to fill
+     * @param n remaining recursion depth
+     * @param r row index of the top-left corner of the current block
+     * @param c column index of the top-left corner of the current block
+     * @param val sign value to write at base case ({@code 1} or {@code -1})
+     */
     private static void fill(int[][] mat, int n, int r, int c, int val) {
         if (n == 0) {
             mat[r][c] = val;

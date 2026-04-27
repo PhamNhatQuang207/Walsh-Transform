@@ -24,7 +24,15 @@ class HadamardMatrixTest {
         assertArrayEquals(new int[] {1, 1}, h[0]);
         assertArrayEquals(new int[] {1, -1}, h[1]);
     }
+    @Test
+    void generateN2MatchesExpectedSylvesterForm() {
+        int[][] h = HadamardMatrix.generate(2);
 
+        assertArrayEquals(new int[] {1, 1, 1, 1}, h[0]);
+        assertArrayEquals(new int[] {1, -1, 1, -1}, h[1]);
+        assertArrayEquals(new int[] {1, 1, -1, -1}, h[2]);
+        assertArrayEquals(new int[] {1, -1, -1, 1}, h[3]);
+    }
     @Test
     void generateN2RowsAreOrthogonal() {
         int[][] h = HadamardMatrix.generate(2);
