@@ -64,7 +64,7 @@ public class Main {
         }
 
         if (totalStates > displayLimit) {
-            System.out.println("... và " + (totalStates - displayLimit) + " hệ số khác.");
+            System.out.println("... and " + (totalStates - displayLimit) + " other coefficients.");
         }
 
         System.out.println("----------------------------------------------------------------------------------");
