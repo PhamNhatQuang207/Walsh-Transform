@@ -1,4 +1,4 @@
-package com.example;
+package com.walshtransform;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

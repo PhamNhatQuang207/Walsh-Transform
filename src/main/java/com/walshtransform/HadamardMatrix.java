@@ -1,4 +1,4 @@
-package com.example;
+package com.walshtransform;
 
 /**
  * Utility class for generating Sylvester-type Hadamard matrices of order 2^n.

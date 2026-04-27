@@ -1,4 +1,4 @@
-package com.example;
+package com.walshtransform;
 /**
  * This class represents a black-box function that can be evaluated at any point in the search space.
  * It is an abstract class that must be extended by specific implementations of black-box functions.
