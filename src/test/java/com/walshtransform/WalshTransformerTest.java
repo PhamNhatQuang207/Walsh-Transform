@@ -51,4 +51,19 @@ class WalshTransformerTest {
         assertEquals(0.5, weights[0], 1e-12);
         assertEquals(0.0, weights[1], 1e-12);
     }
+    @Test
+    void computeSingleWeightMatchesKnownCoefficient() {
+        BlackBoxFunction f = new BlackBoxFunction(2) {
+            private final double[] values = {1.0, 5.0, 3.0, 2.0};
+
+            @Override
+            public double evaluate(int[] x) {
+                int idx = BinaryVectorUtils.binaryVectorToInt(x);
+                return values[idx];
+            }
+        };
+        double[] expected = {2.75,-0.75,0.25,-1.25}; // Precomputed coefficients
+        double[] actual = WalshTransformer.computeWeights(f);
+        assertArrayEquals(expected, actual, 1e-12);
+    }
 }
