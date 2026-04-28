@@ -38,15 +38,16 @@ public class WalshTransformBenchmark {
         System.out.printf("Random max value Q: %.4f%n", config.maxValue);
         System.out.printf("Samples per dimension: %d%n%n", config.samples);
 
-        System.out.printf("%-10s | %-12s | %-18s%n",
-            "Dimension", "States", "Avg Matrix (ms)");
-        System.out.println("------------------------------------------------------------");
+        System.out.printf("%-10s | %-12s | %-18s | %-18s%n",
+            "Dimension", "States", "Avg Matrix (ms)", "Avg FWHT (ms)");
+        System.out.println("----------------------------------------------------------------------------------");
 
         List<BenchmarkResult> results = new ArrayList<>();
 
         for (int n = config.nStart; n <= config.nEnd; n++) {
             int size = BinaryVectorUtils.checkedPowerOfTwo(n);
             double totalMatrixNs = 0.0;
+            double totalFwhtNs = 0.0;
 
             for (int i = 0; i < config.samples; i++) {
                 BlackBoxFunction f = new RandomBlackBox(n, config.maxValue);
@@ -56,17 +57,23 @@ public class WalshTransformBenchmark {
                 long endMatrix = System.nanoTime();
                 totalMatrixNs += (endMatrix - startMatrix);
 
+                long startFwht = System.nanoTime();
+                FastWalshTransformer.calculateWalshCoefficients(f);
+                long endFwht = System.nanoTime();
+                totalFwhtNs += (endFwht - startFwht);
+
             }
 
             double avgMatrixMs = totalMatrixNs / config.samples / 1_000_000.0;
+            double avgFwhtMs = totalFwhtNs / config.samples / 1_000_000.0;
 
-            results.add(new BenchmarkResult(n, size, avgMatrixMs));
+            results.add(new BenchmarkResult(n, size, avgMatrixMs, avgFwhtMs));
 
-            System.out.printf("%-10d | %-12d | %-18.4f%n",
-                    n, size, avgMatrixMs);
+            System.out.printf("%-10d | %-12d | %-18.4f | %-18.4f%n",
+                    n, size, avgMatrixMs, avgFwhtMs);
         }
 
-        System.out.println("------------------------------------------------------------");
+        System.out.println("----------------------------------------------------------------------------------");
         writeCsv(results, config.csvPath);
         writeChartImage(results, config.chartPath);
         System.out.println("Done.");
@@ -74,10 +81,11 @@ public class WalshTransformBenchmark {
 
     private static void writeCsv(List<BenchmarkResult> results, String csvPath) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvPath))) {
-            writer.write("dimension,states,avg_matrix_ms");
+            writer.write("dimension,states,avg_matrix_ms,avg_fwht_ms");
             writer.newLine();
             for (BenchmarkResult result : results) {
-                writer.write(result.dimension + "," + result.states + "," + String.format("%.6f", result.avgMatrixMs));
+                writer.write(result.dimension + "," + result.states + "," + String.format("%.6f", result.avgMatrixMs)
+                    + "," + String.format("%.6f", result.avgFwhtMs));
                 writer.newLine();
             }
             System.out.println("CSV written to: " + csvPath);
@@ -95,9 +103,7 @@ public class WalshTransformBenchmark {
         int minDimension = results.get(0).dimension;
         int maxDimension = results.get(0).dimension;
         for (BenchmarkResult result : results) {
-            if (result.avgMatrixMs > maxValue) {
-                maxValue = result.avgMatrixMs;
-            }
+            maxValue = Math.max(maxValue, Math.max(result.avgMatrixMs, result.avgFwhtMs));
             if (result.dimension < minDimension) {
                 minDimension = result.dimension;
             }
@@ -131,11 +137,11 @@ public class WalshTransformBenchmark {
         g.drawLine(left, top + plotHeight, left + plotWidth, top + plotHeight);
 
         g.setFont(new Font("SansSerif", Font.BOLD, 14));
-        g.drawString("Walsh Transform (Matrix) Avg Time", left, top - 10);
+        g.drawString("Walsh Transform Avg Time", left, top - 10);
 
         g.setFont(new Font("SansSerif", Font.PLAIN, 12));
         g.drawString("Dimension n", left + (plotWidth / 2) - 30, top + plotHeight + 40);
-        g.drawString("Avg Matrix (ms)", 10, top + 10);
+        g.drawString("Avg Time (ms)", 10, top + 10);
 
         int yTicks = 5;
         for (int i = 0; i <= yTicks; i++) {
@@ -146,32 +152,23 @@ public class WalshTransformBenchmark {
             g.drawString(String.format("%.2f", value), 15, y + 4);
         }
 
-        g.setColor(new Color(30, 90, 180));
         g.setStroke(new BasicStroke(2.0f));
+        Color matrixColor = new Color(30, 90, 180);
+        Color fwhtColor = new Color(200, 90, 20);
 
-        int prevX = -1;
-        int prevY = -1;
-        for (BenchmarkResult result : results) {
-            int x;
-            if (minDimension == maxDimension) {
-                x = left + plotWidth / 2;
-            } else {
-                x = left + (int) Math.round(((result.dimension - minDimension) / (double) (maxDimension - minDimension)) * plotWidth);
-            }
-            int y = top + plotHeight - (int) Math.round((result.avgMatrixMs / maxValue) * plotHeight);
+        drawSeries(g, results, minDimension, maxDimension, maxValue, left, top, plotWidth, plotHeight,
+            matrixColor, true);
+        drawSeries(g, results, minDimension, maxDimension, maxValue, left, top, plotWidth, plotHeight,
+            fwhtColor, false);
 
-            if (prevX >= 0) {
-                g.drawLine(prevX, prevY, x, y);
-            }
-
-            g.fillOval(x - 3, y - 3, 6, 6);
-            g.setColor(Color.DARK_GRAY);
-            g.drawString(String.valueOf(result.dimension), x - 6, top + plotHeight + 20);
-            g.setColor(new Color(30, 90, 180));
-
-            prevX = x;
-            prevY = y;
-        }
+        g.setColor(matrixColor);
+        g.fillRect(left + plotWidth - 140, top + 5, 12, 12);
+        g.setColor(Color.BLACK);
+        g.drawString("Matrix", left + plotWidth - 120, top + 15);
+        g.setColor(fwhtColor);
+        g.fillRect(left + plotWidth - 70, top + 5, 12, 12);
+        g.setColor(Color.BLACK);
+        g.drawString("FWHT", left + plotWidth - 50, top + 15);
 
         g.dispose();
 
@@ -187,11 +184,55 @@ public class WalshTransformBenchmark {
         private final int dimension;
         private final int states;
         private final double avgMatrixMs;
+        private final double avgFwhtMs;
 
-        private BenchmarkResult(int dimension, int states, double avgMatrixMs) {
+        private BenchmarkResult(int dimension, int states, double avgMatrixMs, double avgFwhtMs) {
             this.dimension = dimension;
             this.states = states;
             this.avgMatrixMs = avgMatrixMs;
+            this.avgFwhtMs = avgFwhtMs;
+        }
+    }
+
+    private static void drawSeries(
+        Graphics2D g,
+        List<BenchmarkResult> results,
+        int minDimension,
+        int maxDimension,
+        double maxValue,
+        int left,
+        int top,
+        int plotWidth,
+        int plotHeight,
+        Color color,
+        boolean matrixSeries) {
+
+        g.setColor(color);
+        int prevX = -1;
+        int prevY = -1;
+
+        for (BenchmarkResult result : results) {
+            int x;
+            if (minDimension == maxDimension) {
+                x = left + plotWidth / 2;
+            } else {
+                x = left + (int) Math.round(((result.dimension - minDimension)
+                    / (double) (maxDimension - minDimension)) * plotWidth);
+            }
+            double value = matrixSeries ? result.avgMatrixMs : result.avgFwhtMs;
+            int y = top + plotHeight - (int) Math.round((value / maxValue) * plotHeight);
+
+            if (prevX >= 0) {
+                g.drawLine(prevX, prevY, x, y);
+            }
+
+            g.fillOval(x - 3, y - 3, 6, 6);
+            g.setColor(Color.DARK_GRAY);
+            g.drawString(String.valueOf(result.dimension), x - 6, top + plotHeight + 20);
+            g.setColor(color);
+
+            prevX = x;
+            prevY = y;
         }
     }
 
