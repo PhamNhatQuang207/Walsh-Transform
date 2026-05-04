@@ -29,7 +29,7 @@ public class WalshTransformerDirect {
         for (int x = 0; x < size; x++) {
             int[] binaryX = BinaryVectorUtils.intToBinaryVector(x, n);
             double fx = f.evaluate(binaryX);
-            sum += fx * calculateWalshValue(k, binaryX);
+            sum += fx * calculateWalshValue(k, x);
         }
 
         return sum / size;
@@ -42,13 +42,8 @@ public class WalshTransformerDirect {
      * @param x binary input vector
      * @return {@code 1} when parity is even, otherwise {@code -1}
      */
-    private static int calculateWalshValue(int k, int[] x) {
-        int dotProduct = 0;
-        for (int i = 0; i < x.length; i++) {
-            if (((k >> i) & 1) == 1) {
-                dotProduct += x[i];
-            }
-        }
-        return (dotProduct % 2 == 0) ? 1 : -1;
+    private static int calculateWalshValue(int k, int xVal) {
+        int dotProductParity = Integer.bitCount(k & xVal) & 1;
+        return (dotProductParity == 0) ? 1 : -1;
     }
 }

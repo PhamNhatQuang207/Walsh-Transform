@@ -26,7 +26,7 @@ public class HadamardMatrix {
             throw new IllegalArgumentException("n is too large to build a 2^n matrix dimension as int");
         }
 
-        int size = 1 << n;
+        int size = BinaryVectorUtils.checkedPowerOfTwo(n);
         int[][] h = new int[size][size];
         fill(h, n, 0, 0, 1);
         return h;
