@@ -12,8 +12,8 @@ class FastWalshTransformerTest {
     void calculateWalshCoefficientsMatchesWalshTransformer() {
         BlackBoxFunction f = new BlackBoxFunction(3) {
             @Override
-            public double evaluate(int[] x) {
-                return x[0] + 2.0 * x[1] - x[2];
+            public double evaluate(boolean[] x) {
+                return (x[0] ? 1 : 0) + 2.0 * (x[1] ? 1 : 0) - (x[2] ? 1 : 0);
             }
         };
 
@@ -32,8 +32,8 @@ class FastWalshTransformerTest {
     void calculateWalshCoefficientsRejectsDimensionMismatch() {
         BlackBoxFunction f = new BlackBoxFunction(2) {
             @Override
-            public double evaluate(int[] x) {
-                return x[0] + x[1];
+            public double evaluate(boolean[] x) {
+                return (x[0] ? 1 : 0) + (x[1] ? 1 : 0);
             }
         };
 
@@ -46,7 +46,7 @@ class FastWalshTransformerTest {
             private final double[] values = {1.0, 5.0, 3.0, 2.0};
 
             @Override
-            public double evaluate(int[] x) {
+            public double evaluate(boolean[] x) {
                 int idx = BinaryVectorUtils.binaryVectorToInt(x);
                 return values[idx];
             }

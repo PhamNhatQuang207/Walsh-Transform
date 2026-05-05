@@ -27,7 +27,7 @@ public class WalshTransformerDirect {
         double sum = 0;
 
         for (int x = 0; x < size; x++) {
-            int[] binaryX = BinaryVectorUtils.intToBinaryVector(x, n);
+            boolean[] binaryX = BinaryVectorUtils.intToBinaryVector(x, n);
             double fx = f.evaluate(binaryX);
             sum += fx * calculateWalshValue(k, x);
         }

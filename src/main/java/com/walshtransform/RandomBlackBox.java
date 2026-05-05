@@ -5,22 +5,22 @@ import java.util.Random;
 public class RandomBlackBox extends BlackBoxFunction {
     private final double[] values; 
 
-    public RandomBlackBox(int n, double Q) {
+    public RandomBlackBox(int n, int Q) {
         super(n);
         int size = BinaryVectorUtils.checkedPowerOfTwo(n);
         this.values = new double[size];
         
         Random random = new Random();
         for (int i = 0; i < size; i++) {
-            this.values[i] = random.nextDouble() * Q;
+            this.values[i] = random.nextInt(0, Q);
         }
     }
 
     @Override
-    public double evaluate(int[] x) {
+    public double evaluate(boolean[] x) {
         int index = 0;
         for (int i = 0; i < x.length; i++) {
-            if (x[i] == 1) {
+            if (x[i] == true) {
                 index |= (1 << i);
             }
         }

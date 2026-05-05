@@ -26,7 +26,7 @@ public class WalshTransformer {
         double[] fVec = new double[size];
 
         for (int i = 0; i < size; i++) {
-            int[] binaryVector = BinaryVectorUtils.intToBinaryVector(i, n);
+            boolean[] binaryVector = BinaryVectorUtils.intToBinaryVector(i, n);
             fVec[i] = f.evaluate(binaryVector);
         }
 

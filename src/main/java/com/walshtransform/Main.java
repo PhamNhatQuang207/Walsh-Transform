@@ -11,7 +11,7 @@ public class Main {
         int n = scanner.nextInt();
 
         System.out.print("Input maximum value (Q): ");
-        double Q = scanner.nextDouble();
+        int Q = scanner.nextInt();
 
         // 2. Initialize the random black-box function
         BlackBoxFunction f = new RandomBlackBox(n, Q);
@@ -22,7 +22,7 @@ public class Main {
         
         for (int i = 0; i < totalStates; i++) {
             // Chuyển chỉ số vòng lặp thành vector binary để làm input [cite: 66, 77]
-            int[] binaryInput = BinaryVectorUtils.intToBinaryVector(i, n);
+            boolean[] binaryInput = BinaryVectorUtils.intToBinaryVector(i, n);
             double output = f.evaluate(binaryInput);
             
             System.out.printf("%-15s | %-15.4f\n", Arrays.toString(binaryInput), output);
@@ -79,7 +79,7 @@ public class Main {
 
         boolean reconstructionSuccess = true;
         for (int i = 0; i < displayLimit; i++) {
-            int[] binaryInput = BinaryVectorUtils.intToBinaryVector(i, n);
+            boolean[] binaryInput = BinaryVectorUtils.intToBinaryVector(i, n);
             double original = f.evaluate(binaryInput);
             double reconstructed = WalshPolynomial.evaluate(weightsMatrix, binaryInput);
 

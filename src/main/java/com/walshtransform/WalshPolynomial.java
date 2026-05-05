@@ -17,12 +17,12 @@ public final class WalshPolynomial {
      * <p>The reconstruction formula is: f(x) = sum_{k=0}^{2^n-1} w_k * (-1)^(k dot x)</p>
      *
      * @param weights array of Walsh coefficients w_k
-     * @param x input binary vector
+    * @param x input binary vector
      * @return reconstructed value f(x)
      * @throws NullPointerException if weights or x is null
      * @throws IllegalArgumentException if weights.length is not 2^(x.length)
      */
-    public static double evaluate(double[] weights, int[] x) {
+    public static double evaluate(double[] weights, boolean[] x) {
         Objects.requireNonNull(weights, "weights must not be null");
         Objects.requireNonNull(x, "input vector x must not be null");
 

@@ -11,12 +11,12 @@ public abstract class BlackBoxFunction{
     }
     /**
      * Evaluates the black-box function at a given point in the search space.
-     * @param x an integer array representing vector in the search space where the function is
-     * evaluated. Example: if n=3, x could be [1, 0, 1].
+    * @param x a boolean array representing vector in the search space where the function is
+    * evaluated. Example: if n=3, x could be [true, false, true].
      * @return the real value of the black-box function with vector input.
      */
 
-    public abstract double evaluate(int[] x);
+    public abstract double evaluate(boolean[] x);
 
     public int getDimension() {
         return n;

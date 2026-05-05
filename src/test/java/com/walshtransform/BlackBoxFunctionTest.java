@@ -10,7 +10,7 @@ class BlackBoxFunctionTest {
     void getDimensionReturnsConstructorValue() {
         BlackBoxFunction f = new BlackBoxFunction(4) {
             @Override
-            public double evaluate(int[] x) {
+            public double evaluate(boolean[] x) {
                 return 0.0;
             }
         };
@@ -22,11 +22,11 @@ class BlackBoxFunctionTest {
     void evaluateUsesSubclassImplementation() {
         BlackBoxFunction sumFunction = new BlackBoxFunction(3) {
             @Override
-            public double evaluate(int[] x) {
-                return x[0] + x[1] + x[2];
+            public double evaluate(boolean[] x) {
+                return (x[0] ? 1 : 0) + (x[1] ? 1 : 0) + (x[2] ? 1 : 0);
             }
         };
 
-        assertEquals(2.0, sumFunction.evaluate(new int[] {1, 0, 1}));
+        assertEquals(2.0, sumFunction.evaluate(new boolean[] {true, false, true}));
     }
 }

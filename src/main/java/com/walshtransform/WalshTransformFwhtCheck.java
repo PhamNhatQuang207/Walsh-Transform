@@ -14,19 +14,19 @@ public final class WalshTransformFwhtCheck {
         Scanner scanner = new Scanner(System.in);
 
         int n;
-        double maxValue;
+        int maxValue;
         double epsilon;
 
         if (args.length >= 2) {
             n = Integer.parseInt(args[0]);
-            maxValue = Double.parseDouble(args[1]);
+            maxValue = Integer.parseInt(args[1]);
             epsilon = (args.length >= 3) ? Double.parseDouble(args[2]) : DEFAULT_EPSILON;
         } else {
             System.out.print("Input dimension (n): ");
             n = scanner.nextInt();
 
             System.out.print("Input maximum value (Q): ");
-            maxValue = scanner.nextDouble();
+            maxValue = scanner.nextInt();
             scanner.nextLine();
 
             System.out.print("Input epsilon (press Enter for default " + DEFAULT_EPSILON + "): ");

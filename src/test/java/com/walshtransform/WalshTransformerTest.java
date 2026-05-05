@@ -17,7 +17,7 @@ class WalshTransformerTest {
     void computeWeightsRejectsNegativeDimension() {
         BlackBoxFunction f = new BlackBoxFunction(-1) {
             @Override
-            public double evaluate(int[] x) {
+            public double evaluate(boolean[] x) {
                 return 0.0;
             }
         };
@@ -29,7 +29,7 @@ class WalshTransformerTest {
     void computeWeightsMatchesConstantFunction() {
         BlackBoxFunction constant = new BlackBoxFunction(2) {
             @Override
-            public double evaluate(int[] x) {
+            public double evaluate(boolean[] x) {
                 return 5.0;
             }
         };
@@ -42,7 +42,7 @@ class WalshTransformerTest {
     void computeWeightsPreservesFractionalCoefficient() {
         BlackBoxFunction halfConstant = new BlackBoxFunction(1) {
             @Override
-            public double evaluate(int[] x) {
+            public double evaluate(boolean[] x) {
                 return 0.5;
             }
         };
@@ -57,7 +57,7 @@ class WalshTransformerTest {
             private final double[] values = {1.0, 5.0, 3.0, 2.0};
 
             @Override
-            public double evaluate(int[] x) {
+            public double evaluate(boolean[] x) {
                 int idx = BinaryVectorUtils.binaryVectorToInt(x);
                 return values[idx];
             }

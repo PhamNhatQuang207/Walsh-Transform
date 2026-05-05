@@ -35,7 +35,7 @@ public class WalshTransformBenchmark {
     private static void runBenchmark(BenchmarkConfig config) {
         System.out.println("\n--- Walsh Transform Benchmark ---");
         System.out.printf("Dimensions: %d to %d%n", config.nStart, config.nEnd);
-        System.out.printf("Random max value Q: %.4f%n", config.maxValue);
+        System.out.printf("Random max value Q: %d%n", config.maxValue);
         System.out.printf("Samples per dimension: %d%n%n", config.samples);
 
         System.out.printf("%-10s | %-12s | %-18s | %-18s%n",
@@ -239,12 +239,12 @@ public class WalshTransformBenchmark {
     private static final class BenchmarkConfig {
         private final int nStart;
         private final int nEnd;
-        private final double maxValue;
+        private final int maxValue;
         private final int samples;
         private final String csvPath;
         private final String chartPath;
 
-        private BenchmarkConfig(int nStart, int nEnd, double maxValue, int samples, String csvPath, String chartPath) {
+        private BenchmarkConfig(int nStart, int nEnd, int maxValue, int samples, String csvPath, String chartPath) {
             this.nStart = nStart;
             this.nEnd = nEnd;
             this.maxValue = maxValue;
@@ -257,7 +257,7 @@ public class WalshTransformBenchmark {
             try {
                 int nStart = Integer.parseInt(args[0]);
                 int nEnd = Integer.parseInt(args[1]);
-                double maxValue = Double.parseDouble(args[2]);
+                int maxValue = Integer.parseInt(args[2]);
                 int samples = (args.length >= 4) ? Integer.parseInt(args[3]) : DEFAULT_SAMPLES;
                 String csvPath = (args.length >= 5) ? args[4] : DEFAULT_CSV_PATH;
                 String chartPath = (args.length >= 6) ? args[5] : DEFAULT_CHART_PATH;
@@ -276,12 +276,12 @@ public class WalshTransformBenchmark {
             int nEnd = scanner.nextInt();
 
             System.out.print("Input maximum value (Q): ");
-            double maxValue = scanner.nextDouble();
+            int maxValue = scanner.nextInt();
 
             return validate(nStart, nEnd, maxValue, DEFAULT_SAMPLES, DEFAULT_CSV_PATH, DEFAULT_CHART_PATH);
         }
 
-        private static BenchmarkConfig validate(int nStart, int nEnd, double maxValue, int samples, String csvPath, String chartPath) {
+        private static BenchmarkConfig validate(int nStart, int nEnd, int maxValue, int samples, String csvPath, String chartPath) {
             if (nStart < 1 || nEnd < nStart) {
                 System.out.println("Invalid dimension range. Expect 1 <= nStart <= nEnd.");
                 return null;

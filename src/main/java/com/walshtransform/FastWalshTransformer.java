@@ -52,7 +52,7 @@ public final class FastWalshTransformer {
 
         // Step 1: Collect all 2^n values from the black-box function.
         for (int i = 0; i < totalSolutions; i++) {
-            int[] binaryVector = BinaryVectorUtils.intToBinaryVector(i, n);
+            boolean[] binaryVector = BinaryVectorUtils.intToBinaryVector(i, n);
             fitnessValues[i] = f.evaluate(binaryVector);
         }
 
@@ -78,7 +78,7 @@ public final class FastWalshTransformer {
         double[] fitnessValues = new double[size];
 
         for (int i = 0; i < size; i++) {
-            int[] binaryVector = BinaryVectorUtils.intToBinaryVector(i, n);
+            boolean[] binaryVector = BinaryVectorUtils.intToBinaryVector(i, n);
             fitnessValues[i] = f.evaluate(binaryVector);
         }
 

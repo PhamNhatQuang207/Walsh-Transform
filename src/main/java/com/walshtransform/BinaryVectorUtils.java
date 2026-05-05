@@ -49,10 +49,10 @@ final class BinaryVectorUtils {
      * @param n vector length
      * @return binary vector representation of {@code value}
      */
-    static int[] intToBinaryVector(int value, int n) {
-        int[] vector = new int[n];
+    static boolean[] intToBinaryVector(int value, int n) {
+        boolean[] vector = new boolean[n];
         for (int i = 0; i < n; i++) {
-            vector[i] = (value >> i) & 1;
+            vector[i] = ((value >> i) & 1) == 1;
         }
         return vector;
     }
@@ -63,10 +63,10 @@ final class BinaryVectorUtils {
      * @param vector binary vector
      * @return integer value
      */
-    static int binaryVectorToInt(int[] vector) {
+    static int binaryVectorToInt(boolean[] vector) {
         int value = 0;
         for (int i = 0; i < vector.length; i++) {
-            if (vector[i] == 1) {
+            if (vector[i]) {
                 value |= (1 << i);
             }
         }
