@@ -10,7 +10,7 @@ public final class FastWalshTransformer {
      * Core method: performs the Fast Walsh-Hadamard Transform in-place.
      * Transforms the input array using the implicit Hadamard matrix without allocating one.
      */
-    private static void fwht(double[] a) {
+    static void fwht(double[] a) {
         int n = a.length;
         if (n == 0 || (n & (n - 1)) != 0) {
             throw new IllegalArgumentException("array length must be a power of two");

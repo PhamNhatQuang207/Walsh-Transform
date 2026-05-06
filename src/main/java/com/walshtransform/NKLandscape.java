@@ -107,4 +107,16 @@ public class NKLandscape extends BlackBoxFunction {
         }
         return sb.toString();
     }
+
+    int getK() {
+        return k;
+    }
+
+    int[][] getInteractions() {
+        return interactions;
+    }
+
+    double[][][] getInteractionTables() {
+        return interactionTables;
+    }
 }
