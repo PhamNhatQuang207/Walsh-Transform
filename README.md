@@ -9,6 +9,10 @@ Java library project built with Maven and Java 17 for calculating Walsh transfor
 - **WalshTransformerDirect**: computes Walsh coefficients using the direct summation method.
 - **FastWalshTransformer**: computes Walsh coefficients using the Fast Walsh-Hadamard Transform (FWHT).
 - **BlackBoxFunction**: abstract base class and random implementation for black-box function evaluation over integer vectors.
+- **WalshPolynomial**: reconstructs $f(x)$ from Walsh coefficients.
+- **NKLandscape**: random NK fitness landscape implementation as a black-box function over binary vectors.
+- **NKLandscapeWalshTransformer**: extracts sparse Walsh coefficients using NK structure.
+- **NKLandscapeFwhtRunner**: CLI runner for NK landscapes using FWHT-based extraction.
 - **Main**: Interactive CLI application to test and compare both Walsh transform methods.
 - **WalshTransformBenchmark**: benchmark runner that averages matrix and FWHT timing across dimensions and outputs CSV and PNG chart.
 - **WalshTransformFwhtCheck**: CLI checker to compare FWHT and matrix results with a per-index table.
@@ -23,6 +27,10 @@ Java library project built with Maven and Java 17 for calculating Walsh transfor
 - `src/main/java/com/walshtransform/WalshTransformerDirect.java`
 - `src/main/java/com/walshtransform/FastWalshTransformer.java`
 - `src/main/java/com/walshtransform/BinaryVectorUtils.java`
+- `src/main/java/com/walshtransform/WalshPolynomial.java`
+- `src/main/java/com/walshtransform/NKLandscape.java`
+- `src/main/java/com/walshtransform/NKLandscapeWalshTransformer.java`
+- `src/main/java/com/walshtransform/NKLandscapeFwhtRunner.java`
 - `src/main/java/com/walshtransform/Main.java`
 - `src/main/java/com/walshtransform/WalshTransformBenchmark.java`
 - `src/main/java/com/walshtransform/WalshTransformFwhtCheck.java`
@@ -48,13 +56,36 @@ mvn package
 
 ## Running the Application
 
-You can easily run the interactive CLI application to compare the performance and outputs of both Walsh transform methods using the following Maven command:
+You can run the interactive CLI application to compare matrix vs. direct summation methods, then verify reconstruction with the Walsh polynomial:
 
 ```bash
 mvn exec:java
 ```
 
 When you run this command, it will prompt you for the input dimension `n` and a maximum value `Q` for the random black-box function.
+
+## Running the NK Landscape FWHT Runner
+
+Build the project and run the NK landscape FWHT extraction:
+
+```bash
+mvn -q -DskipTests package
+java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner
+```
+
+You can also pass arguments:
+
+```bash
+java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner n k [displayLimit]
+```
+
+Example:
+
+```bash
+java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner 8 2 30
+```
+
+The runner prints the NK landscape configuration and the first $\min(\text{displayLimit}, \text{nonzero})$ sparse Walsh coefficients.
 
 ## Running the Benchmark
 
@@ -113,3 +144,4 @@ java -cp target/classes com.walshtransform.WalshTransformFwhtCheck 6 1.0 1e-12
 - Input `n` must be non-negative; invalid values throw `IllegalArgumentException`.
 - Matrix values are stored as `int` (`+1` and `-1`).
 - The matrix method allocates the full Hadamard matrix in memory. Large dimensions (for example, `n >= 15`) can require several GB of heap and may trigger `OutOfMemoryError` unless you increase `-Xmx` or reduce the dimension.
+- `NKLandscapeWalshTransformer` requires `n < 64` so the coefficient masks fit in a `long`.
