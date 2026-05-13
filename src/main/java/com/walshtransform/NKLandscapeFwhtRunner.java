@@ -1,5 +1,10 @@
 package com.walshtransform;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.BitSet;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -8,7 +13,6 @@ import java.util.Scanner;
  * the resulting Walsh coefficients.
  */
 public final class NKLandscapeFwhtRunner {
-    private static final int DEFAULT_DISPLAY_LIMIT = 20;
 
     private NKLandscapeFwhtRunner() {
         // Utility class; prevent instantiation.
@@ -19,12 +23,12 @@ public final class NKLandscapeFwhtRunner {
 
         int n;
         int k;
-        int displayLimit;
+        String outputPath;
 
         if (args.length >= 2) {
             n = Integer.parseInt(args[0]);
             k = Integer.parseInt(args[1]);
-            displayLimit = (args.length >= 3) ? Integer.parseInt(args[2]) : DEFAULT_DISPLAY_LIMIT;
+            outputPath = (args.length >= 3) ? args[2] : "nk_walsh_coefficients.csv";
         } else {
             System.out.print("Input dimension (n): ");
             n = scanner.nextInt();
@@ -32,45 +36,79 @@ public final class NKLandscapeFwhtRunner {
             System.out.print("Input interactions (k): ");
             k = scanner.nextInt();
 
-            System.out.print("Display limit (press Enter for default " + DEFAULT_DISPLAY_LIMIT + "): ");
+            System.out.print("Output CSV path (press Enter for default nk_walsh_coefficients.csv): ");
             scanner.nextLine();
-            String displayInput = scanner.nextLine();
-            displayLimit = displayInput.isBlank() ? DEFAULT_DISPLAY_LIMIT : Integer.parseInt(displayInput);
+            String outputInput = scanner.nextLine();
+            outputPath = outputInput.isBlank() ? "nk_walsh_coefficients.csv" : outputInput;
         }
 
         NKLandscape landscape = new NKLandscape(n, k);
-        Map<Long, Double> weights = NKLandscapeWalshTransformer.extractCoefficients(landscape);
+        Map<BitSet, Double> weights = BigNKLandscapeWalshTransformer.extractCoefficients(landscape);
 
         int totalStates = weights.size();
-        int limit = Math.min(displayLimit, totalStates);
 
         System.out.println("\n--- FWHT on NK Landscape ---");
         System.out.println("Dimension: " + n + ", k: " + k + ", nonzero: " + totalStates);
         System.out.println();
         System.out.print(landscape.describeProperties());
 
-        System.out.printf("\n%-10s | %-10s | %-20s%n", "Index k", "Mask", "FWHT Weight");
-        System.out.println("--------------------------------------------------------");
-
-        weights.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .limit(limit)
-            .forEach(entry -> System.out.printf("%-10d | %-10s | %-20.10f%n",
-                entry.getKey(),
-                toBitmask(entry.getKey().intValue(), n),
-                entry.getValue()));
-
-        if (totalStates > limit) {
-            System.out.println("... and " + (totalStates - limit) + " other coefficients.");
-        }
+        writeCsv(weights, n, outputPath);
+        System.out.println("Saved coefficients to: " + outputPath);
 
         scanner.close();
     }
 
-    private static String toBitmask(int value, int n) {
+    private static String toBitmask(BitSet value, int n) {
         StringBuilder sb = new StringBuilder(n);
         for (int i = n - 1; i >= 0; i--) {
-            sb.append(((value >> i) & 1) == 1 ? '1' : '0');
+            sb.append(value.get(i) ? '1' : '0');
+        }
+        return sb.toString();
+    }
+
+    private static void writeCsv(Map<BitSet, Double> weights, int n, String outputPath) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(outputPath))) {
+            writer.write("order,indices,coefficient");
+            writer.newLine();
+            weights.entrySet().stream()
+                .sorted((left, right) -> {
+                    int leftOrder = left.getKey().cardinality();
+                    int rightOrder = right.getKey().cardinality();
+                    if (leftOrder != rightOrder) {
+                        return Integer.compare(leftOrder, rightOrder);
+                    }
+                    double leftAbs = Math.abs(left.getValue());
+                    double rightAbs = Math.abs(right.getValue());
+                    int byAbs = Double.compare(rightAbs, leftAbs);
+                    if (byAbs != 0) {
+                        return byAbs;
+                    }
+                    return toBitmask(left.getKey(), n).compareTo(toBitmask(right.getKey(), n));
+                })
+                .forEach(entry -> {
+                    try {
+                        writer.write(Integer.toString(entry.getKey().cardinality()));
+                        writer.write(',');
+                        writer.write(toIndices(entry.getKey()));
+                        writer.write(',');
+                        writer.write(Double.toString(entry.getValue()));
+                        writer.newLine();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write CSV output", e);
+        }
+    }
+
+    private static String toIndices(BitSet value) {
+        StringBuilder sb = new StringBuilder();
+        for (int bit = value.nextSetBit(0); bit >= 0; bit = value.nextSetBit(bit + 1)) {
+            if (sb.length() > 0) {
+                sb.append(';');
+            }
+            sb.append(bit);
         }
         return sb.toString();
     }

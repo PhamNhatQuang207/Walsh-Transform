@@ -11,8 +11,9 @@ Java library project built with Maven and Java 17 for calculating Walsh transfor
 - **BlackBoxFunction**: abstract base class and random implementation for black-box function evaluation over integer vectors.
 - **WalshPolynomial**: reconstructs $f(x)$ from Walsh coefficients.
 - **NKLandscape**: random NK fitness landscape implementation as a black-box function over binary vectors.
-- **NKLandscapeWalshTransformer**: extracts sparse Walsh coefficients using NK structure.
-- **NKLandscapeFwhtRunner**: CLI runner for NK landscapes using FWHT-based extraction.
+- **NKLandscapeWalshTransformer**: extracts sparse Walsh coefficients using NK structure (requires `n < 64`).
+- **BigNKLandscapeWalshTransformer**: extracts sparse Walsh coefficients using `BitSet` masks for large `n`.
+- **NKLandscapeFwhtRunner**: CLI runner for NK landscapes using FWHT-based extraction and CSV output.
 - **Main**: Interactive CLI application to test and compare both Walsh transform methods.
 - **WalshTransformBenchmark**: benchmark runner that averages matrix and FWHT timing across dimensions and outputs CSV and PNG chart.
 - **WalshTransformFwhtCheck**: CLI checker to compare FWHT and matrix results with a per-index table.
@@ -30,6 +31,7 @@ Java library project built with Maven and Java 17 for calculating Walsh transfor
 - `src/main/java/com/walshtransform/WalshPolynomial.java`
 - `src/main/java/com/walshtransform/NKLandscape.java`
 - `src/main/java/com/walshtransform/NKLandscapeWalshTransformer.java`
+- `src/main/java/com/walshtransform/BigNKLandscapeWalshTransformer.java`
 - `src/main/java/com/walshtransform/NKLandscapeFwhtRunner.java`
 - `src/main/java/com/walshtransform/Main.java`
 - `src/main/java/com/walshtransform/WalshTransformBenchmark.java`
@@ -76,16 +78,16 @@ java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner
 You can also pass arguments:
 
 ```bash
-java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner n k [displayLimit]
+java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner n k [outputPath]
 ```
 
 Example:
 
 ```bash
-java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner 8 2 30
+java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner 8 2 nk_walsh_coefficients.csv
 ```
 
-The runner prints the NK landscape configuration and the first $\min(\text{displayLimit}, \text{nonzero})$ sparse Walsh coefficients.
+The runner prints the NK landscape configuration and saves all sparse coefficients to CSV with columns `order,indices,coefficient`.
 
 ## Running the Benchmark
 
@@ -145,3 +147,4 @@ java -cp target/classes com.walshtransform.WalshTransformFwhtCheck 6 1.0 1e-12
 - Matrix values are stored as `int` (`+1` and `-1`).
 - The matrix method allocates the full Hadamard matrix in memory. Large dimensions (for example, `n >= 15`) can require several GB of heap and may trigger `OutOfMemoryError` unless you increase `-Xmx` or reduce the dimension.
 - `NKLandscapeWalshTransformer` requires `n < 64` so the coefficient masks fit in a `long`.
+- `NKLandscapeFwhtRunner` uses `BigNKLandscapeWalshTransformer` to support large `n`.
