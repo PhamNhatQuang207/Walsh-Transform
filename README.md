@@ -89,6 +89,13 @@ java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner 8 2 nk_walsh_co
 
 The runner prints the NK landscape configuration and saves all sparse coefficients to CSV with columns `order,indices,coefficient`.
 
+## Visualizing Walsh Coefficients
+
+A notebook is provided to explore the coefficient distribution with a histogram, per-order plots, and a zero-centered density curve.
+
+- Open [statistic/walsh_coefficients_visualization.ipynb](statistic/walsh_coefficients_visualization.ipynb)
+- Run the cells in order; the notebook reads [nk_walsh_coefficients.csv](nk_walsh_coefficients.csv) from the project root.
+
 ## Running the Benchmark
 
 Build the project and run the benchmark directly:
