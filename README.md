@@ -96,6 +96,15 @@ A notebook is provided to explore the coefficient distribution with a histogram,
 - Open [statistic/walsh_coefficients_visualization.ipynb](statistic/walsh_coefficients_visualization.ipynb)
 - Run the cells in order; the notebook reads [nk_walsh_coefficients.csv](nk_walsh_coefficients.csv) from the project root.
 
+### Advanced Visualization
+
+An advanced notebook provides structure-focused visuals for linkage discovery and interaction analysis.
+
+- Open [statistic/walsh_coefficients_visualize_advance.ipynb](statistic/walsh_coefficients_visualize_advance.ipynb)
+- Plots include: filtered order-1/2 network graph, magnitude by order, and top-10 per order.
+- Optional dependency: `networkx` (network graph).
+- Useful tuning knobs in the notebook: `edge_cutoff`, `top_n_nodes`, and `max_edges`.
+
 ## Running the Benchmark
 
 Build the project and run the benchmark directly:
