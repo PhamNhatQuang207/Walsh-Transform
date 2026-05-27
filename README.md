@@ -115,9 +115,7 @@ A comprehensive analysis notebook comparing Walsh coefficient distributions acro
 An advanced notebook provides structure-focused visuals for linkage discovery and interaction analysis.
 
 - Open [statistic/walsh_coefficients_visualize_advance.ipynb](statistic/walsh_coefficients_visualize_advance.ipynb)
-- Plots include: filtered order-1/2 network graph, magnitude by order, and top-10 per order.
-- Optional dependency: `networkx` (network graph).
-- Useful tuning knobs in the notebook: `edge_cutoff`, `top_n_nodes`, and `max_edges`.
+- Plots include: filtered magnitude by order and top-10 per order.
 
 ## Running the Benchmark
 
