@@ -17,6 +17,7 @@ Java library project built with Maven and Java 17 for calculating Walsh transfor
 - **Main**: Interactive CLI application to test and compare both Walsh transform methods.
 - **WalshTransformBenchmark**: benchmark runner that averages matrix and FWHT timing across dimensions and outputs CSV and PNG chart.
 - **WalshTransformFwhtCheck**: CLI checker to compare FWHT and matrix results with a per-index table.
+- **NKLandscapeComparison**: utility to compare and analyze NK-landscape Walsh coefficients across parameter combinations (n and k).
 - JUnit 5 tests to verify the correctness of the matrix generation and transformations.
 
 ## Project Structure
@@ -36,6 +37,7 @@ Java library project built with Maven and Java 17 for calculating Walsh transfor
 - `src/main/java/com/walshtransform/Main.java`
 - `src/main/java/com/walshtransform/WalshTransformBenchmark.java`
 - `src/main/java/com/walshtransform/WalshTransformFwhtCheck.java`
+- `src/main/java/com/walshtransform/NKLandscapeComparison.java`
 
 ## Requirements
 
@@ -95,6 +97,18 @@ A notebook is provided to explore the coefficient distribution with a histogram,
 
 - Open [statistic/walsh_coefficients_visualization.ipynb](statistic/walsh_coefficients_visualization.ipynb)
 - Run the cells in order; the notebook reads [nk_walsh_coefficients.csv](nk_walsh_coefficients.csv) from the project root.
+
+## NK-Landscape Comparison Analysis
+
+A comprehensive analysis notebook comparing Walsh coefficient distributions across different NK-landscape parameters:
+
+- Open [statistic/nk_landscape_comparison_analysis.ipynb](statistic/nk_landscape_comparison_analysis.ipynb)
+- The notebook analyzes the effects of:
+  - **Varying k (interactions)**: Compares n=1000 with k=3 vs k=4 to show how epistasis affects landscape complexity
+  - **Varying n (problem size)**: Compares k=3 with n=500 vs n=1000 to show how problem dimension scales complexity
+- Generates FWHT data automatically for the specified parameter combinations
+- Produces visualizations including per-order distributions and key statistical comparisons
+- Provides insights on how problem size and interaction complexity impact the Walsh coefficient distribution
 
 ### Advanced Visualization
 
