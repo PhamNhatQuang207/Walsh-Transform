@@ -2,11 +2,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.example</groupId>
-  <artifactId>my-lib</artifactId>
+  <groupId>com.walshtransform</groupId>
+  <artifactId>walsh-transform</artifactId>
   <version>0.1.0</version>
-  <name>My Library</name>
-  <description>Minimal Java library skeleton</description>
+  <name>Walsh Transform Library</name>
+  <description>Fast Walsh-Hadamard Transform (FWHT) library for black-box functions and NK-Landscapes</description>
   <licenses>
     <license>
       <name>MIT</name>
@@ -15,11 +15,24 @@
   </licenses>
   <developers>
     <developer>
-      <id>you</id>
-      <name>Your Name</name>
-      <email>you@example.com</email>
+      <id>PhamNhatQuang207</id>
+      <name>Pham Nhat Quang</name>
+      <url>https://github.com/PhamNhatQuang207</url>
     </developer>
   </developers>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/PhamNhatQuang207/Walsh-Transform</url>
+    </repository>
+  </distributionManagement>
+
+  <scm>
+    <url>https://github.com/PhamNhatQuang207/Walsh-Transform</url>
+    <connection>scm:git:git://github.com/PhamNhatQuang207/Walsh-Transform.git</connection>
+  </scm>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>

@@ -1,43 +1,158 @@
 # Walsh Transform Java Library
 
-Java library project built with Maven and Java 17 for calculating Walsh transforms.
+A Java library for computing the **Fast Walsh-Hadamard Transform (FWHT)** on black-box functions and NK-Landscape fitness models.
 
-## Features
+## Using as a Library in Your Project
 
-- **HadamardMatrix**: generates Sylvester-type Hadamard matrices of order `2^n`.
-- **WalshTransformer**: computes Walsh coefficients using the Hadamard matrix method.
-- **WalshTransformerDirect**: computes Walsh coefficients using the direct summation method.
-- **FastWalshTransformer**: computes Walsh coefficients using the Fast Walsh-Hadamard Transform (FWHT).
-- **BlackBoxFunction**: abstract base class and random implementation for black-box function evaluation over integer vectors.
-- **WalshPolynomial**: reconstructs $f(x)$ from Walsh coefficients.
-- **NKLandscape**: random NK fitness landscape implementation as a black-box function over binary vectors.
-- **NKLandscapeWalshTransformer**: extracts sparse Walsh coefficients using NK structure (requires `n < 64`).
-- **BigNKLandscapeWalshTransformer**: extracts sparse Walsh coefficients using `BitSet` masks for large `n`.
-- **NKLandscapeFwhtRunner**: CLI runner for NK landscapes using FWHT-based extraction and CSV output.
-- **Main**: Interactive CLI application to test and compare both Walsh transform methods.
-- **WalshTransformBenchmark**: benchmark runner that averages matrix and FWHT timing across dimensions and outputs CSV and PNG chart.
-- **WalshTransformFwhtCheck**: CLI checker to compare FWHT and matrix results with a per-index table.
-- **NKLandscapeComparison**: utility to compare and analyze NK-landscape Walsh coefficients across parameter combinations (n and k).
-- JUnit 5 tests to verify the correctness of the matrix generation and transformations.
+### Option 1: GitHub Packages (recommended)
 
-## Project Structure
+Add to your `~/.m2/settings.xml` (create it if it doesn't exist) to authenticate with GitHub Packages:
 
-- `src/main/java/com/walshtransform/HadamardMatrix.java`
-- `src/main/java/com/walshtransform/BlackBoxFunction.java`
-- `src/main/java/com/walshtransform/RandomBlackBox.java`
-- `src/main/java/com/walshtransform/WalshTransformer.java`
-- `src/main/java/com/walshtransform/WalshTransformerDirect.java`
-- `src/main/java/com/walshtransform/FastWalshTransformer.java`
-- `src/main/java/com/walshtransform/BinaryVectorUtils.java`
-- `src/main/java/com/walshtransform/WalshPolynomial.java`
-- `src/main/java/com/walshtransform/NKLandscape.java`
-- `src/main/java/com/walshtransform/NKLandscapeWalshTransformer.java`
-- `src/main/java/com/walshtransform/BigNKLandscapeWalshTransformer.java`
-- `src/main/java/com/walshtransform/NKLandscapeFwhtRunner.java`
-- `src/main/java/com/walshtransform/Main.java`
-- `src/main/java/com/walshtransform/WalshTransformBenchmark.java`
-- `src/main/java/com/walshtransform/WalshTransformFwhtCheck.java`
-- `src/main/java/com/walshtransform/NKLandscapeComparison.java`
+```xml
+<settings>
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_TOKEN</password>
+    </server>
+  </servers>
+</settings>
+```
+
+> Generate a token at **GitHub → Settings → Developer Settings → Personal Access Tokens** with the `read:packages` scope.
+
+Then add this to your project's `pom.xml`:
+
+```xml
+<repositories>
+  <repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/PhamNhatQuang207/Walsh-Transform</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>com.walshtransform</groupId>
+    <artifactId>walsh-transform</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+</dependencies>
+```
+
+### Option 2: Local JAR
+
+Clone the repository, build the JAR, and install it to your local Maven cache:
+
+```bash
+git clone https://github.com/PhamNhatQuang207/Walsh-Transform.git
+cd Walsh-Transform
+mvn install
+```
+
+Then add the dependency in your `pom.xml`:
+
+```xml
+<dependency>
+  <groupId>com.walshtransform</groupId>
+  <artifactId>walsh-transform</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
+---
+
+## API: Applying FWHT to Your Own Black-Box Function
+
+### Step 1 — Implement your function
+
+Extend `BlackBoxFunction` and override `evaluate`:
+
+```java
+import com.walshtransform.BlackBoxFunction;
+
+public class MyFunction extends BlackBoxFunction {
+
+    public MyFunction(int n) {
+        super(n);  // n = number of binary variables
+    }
+
+    @Override
+    public double evaluate(boolean[] x) {
+        // Return f(x) — your fitness, cost, or reward for input x
+        double value = 0;
+        for (int i = 0; i < x.length; i++) {
+            if (x[i]) value += (i + 1);
+        }
+        return value;
+    }
+}
+```
+
+### Step 2 — Run FWHT and read the Walsh coefficients
+
+```java
+import com.walshtransform.FastWalshTransformer;
+
+public class Main {
+    public static void main(String[] args) {
+        int n = 5;  // 2^5 = 32 possible inputs — keep n small (≤ 20) for full FWHT
+        MyFunction f = new MyFunction(n);
+
+        // Compute all 2^n Walsh coefficients
+        double[] coefficients = FastWalshTransformer.calculateWalshCoefficients(f);
+
+        // coefficients[0]  → global mean of f
+        // coefficients[j]  → strength of the interaction defined by the bits of j
+        for (int j = 0; j < coefficients.length; j++) {
+            if (Math.abs(coefficients[j]) > 1e-10) {
+                System.out.printf("w[%d] = %.6f%n", j, coefficients[j]);
+            }
+        }
+    }
+}
+```
+
+> **Memory note**: `FastWalshTransformer` allocates a `double[2^n]` array. Keep `n ≤ 20` for typical machines. For larger `n`, use the NK-Landscape sparse extractor below.
+
+---
+
+## API: Applying FWHT to an NK-Landscape
+
+NK-Landscapes support arbitrarily large `n` by exploiting the sparse structure of interactions — only the non-zero coefficients are computed and stored.
+
+```java
+import com.walshtransform.NKLandscape;
+import com.walshtransform.BigNKLandscapeWalshTransformer;
+import java.util.BitSet;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+        int n = 1000;  // large landscape — no memory issue
+        int k = 3;     // each variable interacts with 3 others
+
+        NKLandscape landscape = new NKLandscape(n, k);
+
+        // Extract sparse Walsh coefficients (only non-zero terms are returned)
+        Map<BitSet, Double> coefficients = BigNKLandscapeWalshTransformer.extractCoefficients(landscape);
+
+        // Each entry: BitSet (which variables interact) → coefficient value
+        for (Map.Entry<BitSet, Double> entry : coefficients.entrySet()) {
+            int order = entry.getKey().cardinality();  // number of variables involved
+            double value = entry.getValue();
+            System.out.printf("order=%d, vars=%s, w=%.6f%n", order, entry.getKey(), value);
+        }
+    }
+}
+```
+
+**Key properties:**
+- For a landscape with epistasis `k`, all Walsh coefficients of order `> k+1` are exactly zero — the library never computes or stores them.
+- The returned `Map` is keyed by `BitSet`, where each set bit is the index of a variable participating in that interaction.
+
+---
 
 ## Requirements
 
@@ -46,133 +161,38 @@ Java library project built with Maven and Java 17 for calculating Walsh transfor
 
 ## Build and Test
 
-To compile the project and run the test suite:
-
 ```bash
-mvn clean test
+mvn clean test   # run the full test suite
+mvn package      # build the JAR to target/walsh-transform-0.1.0.jar
 ```
 
-To package the project into a JAR file:
+## Running the Interactive Demo
+
+```bash
+mvn exec:java    # prompts for n and Q, then prints all Walsh coefficients
+```
+
+## Running the NK-Landscape Extractor (CLI)
 
 ```bash
 mvn package
+java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner 1000 3 output.csv
 ```
 
-## Running the Application
+Writes a CSV with columns `order,indices,coefficient`. Use the Jupyter notebooks in `/statistic/` to visualize the results.
 
-You can run the interactive CLI application to compare matrix vs. direct summation methods, then verify reconstruction with the Walsh polynomial:
+## Visualizing Results
+
+See the Jupyter notebooks in [`/statistic/`](statistic/):
+
+| Notebook | Purpose |
+|----------|---------|
+| `walsh_coefficients_visualization.ipynb` | Histogram and per-order distribution of coefficients for a single run |
+| `nk_landscape_comparison_analysis.ipynb` | Compare how varying `n` and `k` affects the Walsh spectrum |
+| `walsh_coefficients_visualize_advance.ipynb` | Inspect specific interacting variable sets |
 
 ```bash
-mvn exec:java
+cd statistic
+pip install pandas numpy matplotlib seaborn jupyter
+jupyter notebook
 ```
-
-When you run this command, it will prompt you for the input dimension `n` and a maximum value `Q` for the random black-box function.
-
-## Running the NK Landscape FWHT Runner
-
-Build the project and run the NK landscape FWHT extraction:
-
-```bash
-mvn -q -DskipTests package
-java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner
-```
-
-You can also pass arguments:
-
-```bash
-java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner n k [outputPath]
-```
-
-Example:
-
-```bash
-java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner 8 2 nk_walsh_coefficients.csv
-```
-
-The runner prints the NK landscape configuration and saves all sparse coefficients to CSV with columns `order,indices,coefficient`.
-
-## Visualizing Walsh Coefficients
-
-A notebook is provided to explore the coefficient distribution with a histogram, per-order plots, and a zero-centered density curve.
-
-- Open [statistic/walsh_coefficients_visualization.ipynb](statistic/walsh_coefficients_visualization.ipynb)
-- Run the cells in order; the notebook reads [nk_walsh_coefficients.csv](nk_walsh_coefficients.csv) from the project root.
-
-## NK-Landscape Comparison Analysis
-
-A comprehensive analysis notebook comparing Walsh coefficient distributions across different NK-landscape parameters:
-
-- Open [statistic/nk_landscape_comparison_analysis.ipynb](statistic/nk_landscape_comparison_analysis.ipynb)
-- The notebook analyzes the effects of:
-  - **Varying k (interactions)**: Compares n=1000 with k=3 vs k=4 to show how epistasis affects landscape complexity
-  - **Varying n (problem size)**: Compares k=3 with n=500 vs n=1000 to show how problem dimension scales complexity
-- Generates FWHT data automatically for the specified parameter combinations
-- Produces visualizations including per-order distributions and key statistical comparisons
-- Provides insights on how problem size and interaction complexity impact the Walsh coefficient distribution
-
-### Advanced Visualization
-
-An advanced notebook provides structure-focused visuals for linkage discovery and interaction analysis.
-
-- Open [statistic/walsh_coefficients_visualize_advance.ipynb](statistic/walsh_coefficients_visualize_advance.ipynb)
-- Plots include: filtered magnitude by order and top-10 per order.
-
-## Running the Benchmark
-
-Build the project and run the benchmark directly:
-
-```bash
-mvn -q -DskipTests package
-java -cp target/classes com.walshtransform.WalshTransformBenchmark
-```
-
-You can also pass arguments:
-
-```bash
-java -cp target/classes com.walshtransform.WalshTransformBenchmark nStart nEnd Q [samples] [csvPath] [chartPath]
-```
-
-Example:
-
-```bash
-java -cp target/classes com.walshtransform.WalshTransformBenchmark 2 10 1.0 5 results.csv results.png
-```
-
-The benchmark writes a CSV file and a PNG line chart to visualize how average time grows with dimension.
-
-The CSV columns are:
-
-- `dimension`
-- `states`
-- `avg_matrix_ms`
-- `avg_fwht_ms`
-
-## Comparing FWHT vs Matrix
-
-Build the project and run the FWHT comparison CLI:
-
-```bash
-mvn -q -DskipTests package
-java -cp target/classes com.walshtransform.WalshTransformFwhtCheck
-```
-
-You can also pass arguments:
-
-```bash
-java -cp target/classes com.walshtransform.WalshTransformFwhtCheck n Q [epsilon]
-```
-
-Example:
-
-```bash
-java -cp target/classes com.walshtransform.WalshTransformFwhtCheck 6 1.0 1e-12
-```
-
-## Notes
-
-- `HadamardMatrix.generate(n)` uses recursion with base case `H(0) = [1]`.
-- Input `n` must be non-negative; invalid values throw `IllegalArgumentException`.
-- Matrix values are stored as `int` (`+1` and `-1`).
-- The matrix method allocates the full Hadamard matrix in memory. Large dimensions (for example, `n >= 15`) can require several GB of heap and may trigger `OutOfMemoryError` unless you increase `-Xmx` or reduce the dimension.
-- `NKLandscapeWalshTransformer` requires `n < 64` so the coefficient masks fit in a `long`.
-- `NKLandscapeFwhtRunner` uses `BigNKLandscapeWalshTransformer` to support large `n`.

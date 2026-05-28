@@ -21,7 +21,7 @@ public class Main {
         System.out.println("------------------------------------------");
         
         for (int i = 0; i < totalStates; i++) {
-            // Chuyển chỉ số vòng lặp thành vector binary để làm input [cite: 66, 77]
+            // Convert integer i to binary vector of length n
             boolean[] binaryInput = BinaryVectorUtils.intToBinaryVector(i, n);
             double output = f.evaluate(binaryInput);
             
