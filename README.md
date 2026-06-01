@@ -189,7 +189,7 @@ See the Jupyter notebooks in [`/statistic/`](statistic/):
 |----------|---------|
 | `walsh_coefficients_visualization.ipynb` | Histogram and per-order distribution of coefficients for a single run |
 | `nk_landscape_comparison_analysis.ipynb` | Compare how varying `n` and `k` affects the Walsh spectrum |
-| `walsh_coefficients_visualize_advance.ipynb` | Inspect specific interacting variable sets |
+| `mean_density_analysis` | Calculate mean error for many instances |
 
 ```bash
 cd statistic
