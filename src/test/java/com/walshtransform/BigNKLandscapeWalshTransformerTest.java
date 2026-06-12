@@ -14,7 +14,7 @@ class BigNKLandscapeWalshTransformerTest {
     void extractCoefficientsMatchesFastWalshForSmallN() {
         int n = 6;
         int k = 2;
-        NKLandscape nk = new NKLandscape(n, k);
+        NKLandscape nk = new RandomNKLandscape(n, k);
 
         double[] expected = FastWalshTransformer.calculateWalshCoefficients(nk);
         Map<BitSet, Double> actual = BigNKLandscapeWalshTransformer.extractCoefficients(nk);
@@ -34,7 +34,7 @@ class BigNKLandscapeWalshTransformerTest {
     void extractCoefficientsHandlesLargeN() {
         int n = 70;
         int k = 1;
-        NKLandscape nk = new NKLandscape(n, k);
+        NKLandscape nk = new RandomNKLandscape(n, k);
 
         Map<BitSet, Double> actual = BigNKLandscapeWalshTransformer.extractCoefficients(nk);
 

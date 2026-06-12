@@ -42,7 +42,7 @@ public final class NKLandscapeFwhtRunner {
             outputPath = outputInput.isBlank() ? "nk_walsh_coefficients.csv" : outputInput;
         }
 
-        NKLandscape landscape = new NKLandscape(n, k);
+        NKLandscape landscape = new RandomNKLandscape(n, k);
         Map<BitSet, Double> weights = BigNKLandscapeWalshTransformer.extractCoefficients(landscape);
 
         int totalStates = weights.size();

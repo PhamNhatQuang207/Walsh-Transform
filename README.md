@@ -122,8 +122,12 @@ public class Main {
 
 NK-Landscapes support arbitrarily large `n` by exploiting the sparse structure of interactions — only the non-zero coefficients are computed and stored.
 
+### Option A: Using a Random NK-Landscape
+To generate a random landscape (where variable interactions and contribution tables are automatically created at random), use `RandomNKLandscape`:
+
 ```java
 import com.walshtransform.NKLandscape;
+import com.walshtransform.RandomNKLandscape;
 import com.walshtransform.BigNKLandscapeWalshTransformer;
 import java.util.BitSet;
 import java.util.Map;
@@ -133,7 +137,7 @@ public class Main {
         int n = 1000;  // large landscape — no memory issue
         int k = 3;     // each variable interacts with 3 others
 
-        NKLandscape landscape = new NKLandscape(n, k);
+        NKLandscape landscape = new RandomNKLandscape(n, k);
 
         // Extract sparse Walsh coefficients (only non-zero terms are returned)
         Map<BitSet, Double> coefficients = BigNKLandscapeWalshTransformer.extractCoefficients(landscape);
@@ -146,6 +150,29 @@ public class Main {
         }
     }
 }
+```
+
+### Option B: Using a Custom/General NK-Landscape
+If you have a specific system/function where variable interactions and local fitness tables are already known, you can construct a general `NKLandscape` by providing them:
+
+```java
+// Interactions table of size n x (k+1):
+// For each variable i, list itself (typically at index 0) and its k interacting variables.
+int[][] interactions = {
+    {0, 1}, // variable 0 interacts with variable 1
+    {1, 2}, // variable 1 interacts with variable 2
+    {2, 0}  // variable 2 interacts with variable 0
+};
+
+// Fitness tables of size n x 2^(k+1) x 1:
+// For each variable i, the table contains local fitness values for all 2^(k+1) input configurations.
+double[][][] interactionTables = {
+    {{0.1}, {0.2}, {0.3}, {0.4}}, // contributions for variable 0
+    {{0.5}, {0.6}, {0.7}, {0.8}}, // contributions for variable 1
+    {{0.9}, {0.1}, {0.2}, {0.3}}  // contributions for variable 2
+};
+
+NKLandscape landscape = new NKLandscape(3, 1, interactions, interactionTables);
 ```
 
 **Key properties:**

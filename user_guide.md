@@ -102,6 +102,45 @@ Because $n$ can be in the hundreds or thousands, the FWHT is applied in a **spar
 
 The program writes all extracted coefficients to a **CSV file** for downstream analysis.
 
+### NK-Landscape Class Hierarchy & Initialization
+
+The library separates the NK fitness landscape into a general representation and a random subclass:
+1. **`NKLandscape`** — The general class. It represents an NK landscape with custom variable interactions and local fitness contribution tables. This allows you to model custom system architectures.
+2. **`RandomNKLandscape`** — A subclass of `NKLandscape` that automatically generates random interacting variables and populates the contribution tables with random values in $[0, 1)$.
+
+#### Custom/General NKLandscape Initialization
+To instantiate an NK-landscape with pre-defined structures:
+```java
+int n = 3; // number of variables
+int k = 1; // number of interactions per variable
+
+// Interactions: for each variable, listing itself and its k interacting neighbors
+int[][] interactions = {
+    {0, 1},
+    {1, 2},
+    {2, 0}
+};
+
+// Fitness tables: for each variable, listing 2^(k+1) configuration values
+double[][][] interactionTables = {
+    {{0.1}, {0.2}, {0.3}, {0.4}},
+    {{0.5}, {0.6}, {0.7}, {0.8}},
+    {{0.9}, {0.1}, {0.2}, {0.3}}
+};
+
+NKLandscape landscape = new NKLandscape(n, k, interactions, interactionTables);
+```
+
+#### Random NKLandscape Initialization
+To instantiate a random NK-landscape:
+```java
+// Automatically generates random interactions and contribution tables
+NKLandscape landscape = new RandomNKLandscape(n, k);
+
+// Or with a seed for reproducibility:
+NKLandscape landscape = new RandomNKLandscape(n, k, 42L);
+```
+
 **Run (interactive mode):**
 ```bash
 java -cp target/classes com.walshtransform.NKLandscapeFwhtRunner

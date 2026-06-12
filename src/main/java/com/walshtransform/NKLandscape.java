@@ -1,7 +1,6 @@
 package com.walshtransform;
 
 import java.util.Arrays;
-import java.util.Random;
 
 /**
  * Implements an NK fitness landscape as a black-box function over binary vectors.
@@ -11,69 +10,91 @@ import java.util.Random;
  */
 public class NKLandscape extends BlackBoxFunction {
     /** Number of interacting neighbors per variable (epistatic interactions). */
-    private int k;
+    private final int k;
     /** Fitness contribution tables for each variable. */
-    private double[][][] interactionTables;
+    private final double[][][] interactionTables;
     /** Indices of interacting variables for each position. */
-    private int[][] interactions;
+    private final int[][] interactions;
 
     /**
-     * Creates a random NK landscape.
+     * Creates a custom NK landscape with specified interactions and contribution tables.
      *
      * @param n number of variables
      * @param k number of interactions per variable
-     * @throws IllegalArgumentException if {@code k >= n}
+     * @param interactions indices of interacting variables for each position
+     * @param interactionTables fitness contribution tables for each variable
+     * @throws IllegalArgumentException if dimensions do not match or values are invalid
+     * @throws NullPointerException if inputs are null
      */
-    public NKLandscape(int n, int k) {
+    public NKLandscape(int n, int k, int[][] interactions, double[][][] interactionTables) {
         super(n);
         this.k = k;
-        // Validate that k < n.
+        
+        if (n <= 0) {
+            throw new IllegalArgumentException("n must be greater than 0");
+        }
+        if (k < 0) {
+            throw new IllegalArgumentException("k must be non-negative");
+        }
         if (k >= n) {
             throw new IllegalArgumentException("k must be less than n");
         }
-        initializeLandscape();
-    }
-
-    private void initializeLandscape() {
-        Random rand = new Random();
-        interactions = new int[n][k + 1];
-        // Each table stores random values in [0, 1) for all 2^(k+1) configurations.
-        interactionTables = new double[n][(int) Math.pow(2, k + 1)][1];
-
+        if (interactions == null) {
+            throw new NullPointerException("interactions must not be null");
+        }
+        if (interactionTables == null) {
+            throw new NullPointerException("interactionTables must not be null");
+        }
+        if (interactions.length != n) {
+            throw new IllegalArgumentException("interactions length must equal n");
+        }
+        if (interactionTables.length != n) {
+            throw new IllegalArgumentException("interactionTables length must equal n");
+        }
+        int numConfigs = 1 << (k + 1);
         for (int i = 0; i < n; i++) {
-            // Pick variable i and k distinct neighbors at random.
-            interactions[i][0] = i;
-            for (int j = 1; j <= k; j++) {
-                int neighbor;
-                do {
-                    neighbor = rand.nextInt(n);
-                } while (contains(interactions[i], neighbor, j));
-                interactions[i][j] = neighbor;
+            if (interactions[i] == null || interactions[i].length != k + 1) {
+                throw new IllegalArgumentException("interactions[" + i + "] must have length " + (k + 1));
             }
-
-            // Initialize the random contribution table for all k+1 combinations.
-            for (int j = 0; j < Math.pow(2, k + 1); j++) {
-                interactionTables[i][j][0] = rand.nextDouble();
+            if (interactionTables[i] == null || interactionTables[i].length != numConfigs) {
+                throw new IllegalArgumentException("interactionTables[" + i + "] must have length " + numConfigs);
+            }
+            for (int j = 0; j < numConfigs; j++) {
+                if (interactionTables[i][j] == null || interactionTables[i][j].length != 1) {
+                    throw new IllegalArgumentException("interactionTables[" + i + "][" + j + "] must have length 1");
+                }
             }
         }
-    }
-
-    private boolean contains(int[] array, int val, int limit) {
-        for (int i = 0; i < limit; i++) {
-            if (array[i] == val) return true;
+        
+        // Defensive copying
+        this.interactions = new int[n][k + 1];
+        for (int i = 0; i < n; i++) {
+            System.arraycopy(interactions[i], 0, this.interactions[i], 0, k + 1);
         }
-        return false;
+        
+        this.interactionTables = new double[n][numConfigs][1];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < numConfigs; j++) {
+                this.interactionTables[i][j][0] = interactionTables[i][j][0];
+            }
+        }
     }
 
     @Override
     public double evaluate(boolean[] x) {
+        if (x == null) {
+            throw new NullPointerException("x must not be null");
+        }
+        if (x.length != n) {
+            throw new IllegalArgumentException("x must have length " + n);
+        }
         double totalFitness = 0;
         // Fitness is the average contribution over all variables.
         for (int i = 0; i < n; i++) {
             int tableIndex = 0;
             for (int j = 0; j <= k; j++) {
                 if (x[interactions[i][j]]) {
-                    tableIndex += Math.pow(2, j);
+                    tableIndex += 1 << j;
                 }
             }
             totalFitness += interactionTables[i][tableIndex][0];
@@ -108,15 +129,16 @@ public class NKLandscape extends BlackBoxFunction {
         return sb.toString();
     }
 
-    int getK() {
+    public int getK() {
         return k;
     }
 
-    int[][] getInteractions() {
+    public int[][] getInteractions() {
         return interactions;
     }
 
-    double[][][] getInteractionTables() {
+    public double[][][] getInteractionTables() {
         return interactionTables;
     }
 }
+

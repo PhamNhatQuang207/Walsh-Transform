@@ -13,7 +13,7 @@ class NKLandscapeWalshTransformerTest {
     void extractCoefficientsMatchesFastWalshForSmallN() {
         int n = 5;
         int k = 2;
-        NKLandscape nk = new NKLandscape(n, k);
+        NKLandscape nk = new RandomNKLandscape(n, k);
 
         double[] expected = FastWalshTransformer.calculateWalshCoefficients(nk);
         Map<Long, Double> actual = NKLandscapeWalshTransformer.extractCoefficients(nk);
